@@ -29,13 +29,13 @@ public class Visualizer : MonoBehaviour {
             Image img = obj.AddComponent<Image>();
             obj.transform.SetParent(ui_field);
             
-            if (cell.entity) {
+            if (cell.entity != null) {
                 img.color = Color.red;
-                if (cell.entity.GetComponent<Player>()) {
+                if (cell.entity.name == "Player") {
                     img.color = Color.green;
                 }
             }
-            else if (cell.obj) {
+            else if (cell.obj != null) {
                 img.color = Color.yellow;
             }
             else {

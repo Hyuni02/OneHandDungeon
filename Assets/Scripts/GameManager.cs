@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -20,20 +21,20 @@ public class GameManager : MonoBehaviour {
         field = new Cell[fieldSize.x, fieldSize.y];
 
         List<Vector2Int> placed = new List<Vector2Int>();
-        Vector2Int xy = Vector2Int.zero;
+        Vector2Int xy;
 
         //Spawn Enemies
         for (int i = 0; i < enemyCount; i++) {
             SelectCell(out xy, ref placed);
-            GameObject enemy = Instantiate(PrefabContainer.instance.pref_chicken);
-            lst_entity.Add(enemy.GetComponent<Entity>());
+            Entity enemy = new Chicken("chicken");
+            lst_entity.Add(enemy);
             field[xy.x, xy.y].entity = enemy;
         }
 
         //Spawn Player
         SelectCell(out xy, ref placed);
-        GameObject _player = Instantiate(PrefabContainer.instance.pref_player);
-        player = _player.GetComponent<Player>();
+        Player _player = new Player("Player");
+        player = _player;
         field[xy.x, xy.y].entity = _player;
 
         //Spanw Items
@@ -42,20 +43,23 @@ public class GameManager : MonoBehaviour {
     }
 
     private void Update() {
-        if (Input.GetKeyDown(KeyCode.Space)) {
-            Move(player.gameObject, player.range);
-        }
+
     }
 
-    private void Move(GameObject target, int range = 1) {
+    public void MovePlayer() {
+        Move(player, player.range);
+        FindNearBy();
+    }
+
+    private void Move(Entity target, int range = 1) {
         Vector2Int newPos;
         Vector2Int curPos = FindPos(target);
 
         do {
             newPos = new Vector2Int(curPos.x + Random.Range(-range, range + 1), curPos.y + Random.Range(-range, range + 1));
-        } while (!IsValidPos(newPos));
-        
-        print($"from {curPos.x}, {curPos.y}\nto {newPos.x}, {newPos.y}");
+        } while (!IsValidPos(newPos, true));
+
+        // print($"from {curPos.x}, {curPos.y}\nto {newPos.x}, {newPos.y}");
 
         field[newPos.x, newPos.y].entity = target;
         field[curPos.x, curPos.y].entity = null;
@@ -63,16 +67,36 @@ public class GameManager : MonoBehaviour {
         Visualizer.instance.VisualizeField(field);
     }
 
-    private bool IsValidPos(Vector2Int targetPos) {
-        bool valid = targetPos.x >= 0
-            && targetPos.x < field.GetLength(1)
-            && targetPos.y >= 0
-            && targetPos.y < field.GetLength(0)
-            && !field[targetPos.x, targetPos.y].entity;
-        return valid;
+    private void FindNearBy() {
+        Vector2Int playerPos = FindPos(player);
+        player.lst_nearEntity.Clear();
+        player.lst_nearObejct.Clear();
+        for (int x = playerPos.x - player.range; x <= playerPos.x + player.range; x++) {
+            for (int y = playerPos.y - player.range; y <= playerPos.y + player.range; y++) {
+                Vector2Int newPos = new Vector2Int(x, y);
+                if (!IsValidPos(newPos)) continue;
+                if (newPos == playerPos) continue;
+                if (field[x, y].entity != null) {
+                    player.lst_nearEntity.Add(field[x, y].entity);
+                }
+                if (field[x, y].obj != null) {
+                    player.lst_nearObejct.Add(field[x, y].obj);
+                }
+            }
+        }
+
+        // print(player.lst_nearEntity.Count);
     }
 
-    private Vector2Int FindPos(GameObject target) {
+    private bool IsValidPos(Vector2Int targetPos, bool checkEntity = false) {
+        if (targetPos.x < 0 || targetPos.x >= field.GetLength(1) ||
+            targetPos.y < 0 || targetPos.y >= field.GetLength(0))
+            return false;
+
+        return !checkEntity || field[targetPos.x, targetPos.y].entity == null;
+    }
+
+    private Vector2Int FindPos(Entity target) {
         for (int x = 0; x < field.GetLength(0); x++) {
             for (int y = 0; y < field.GetLength(1); y++) {
                 if (field[x, y].entity == target) {
