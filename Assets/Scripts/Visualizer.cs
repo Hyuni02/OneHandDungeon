@@ -17,6 +17,10 @@ public class Visualizer : MonoBehaviour {
     }
 
     public void VisualizeField(Cell[,] field) {
+        for (int i = ui_field.childCount - 1; i >= 0; i--) {
+            Destroy(ui_field.GetChild(i).gameObject);
+        }
+        
         Vector2 cellSize = ui_field.GetComponent<GridLayoutGroup>().cellSize;
         ui_field.GetComponent<RectTransform>().sizeDelta = new Vector2(field.GetLength(0) * cellSize.x, field.GetLength(1) * cellSize.y);
 
@@ -25,8 +29,14 @@ public class Visualizer : MonoBehaviour {
             Image img = obj.AddComponent<Image>();
             obj.transform.SetParent(ui_field);
             
-            if (cell.enemy) {
+            if (cell.entity) {
                 img.color = Color.red;
+                if (cell.entity.GetComponent<Player>()) {
+                    img.color = Color.green;
+                }
+            }
+            else if (cell.obj) {
+                img.color = Color.yellow;
             }
             else {
                 img.color = Color.gray;
