@@ -637,7 +637,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2060542824}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: MovePlayer
+        m_MethodName: Move_Player
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1101,7 +1101,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2060542824}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: MovePlayer
+        m_MethodName: Attack_Player
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1180,6 +1180,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fieldSize: {x: 5, y: 5}
   enemyCount: 3
+  btn_move: {fileID: 1151888646}
+  btn_attack: {fileID: 1952837766}
 --- !u!4 &2060542825
 Transform:
   m_ObjectHideFlags: 0

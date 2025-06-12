@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour {
+    public static GameManager instance;
+    
     [Header("Field")]
     public Vector2Int fieldSize = Vector2Int.zero;
     public int enemyCount;
@@ -13,7 +16,22 @@ public class GameManager : MonoBehaviour {
     public Player player;
     public List<Entity> lst_entity = new List<Entity>();
 
+    [Header("UI")]
+    public Button btn_move;
+    public Button btn_attack;
+
+    private void Awake() {
+        if (instance == null) {
+            instance = this;
+        }
+        else {
+            Destroy(gameObject);
+        }
+    }
+    
     private void Start() {
+        btn_attack.interactable = false;
+        
         CreateField();
     }
 
@@ -28,27 +46,40 @@ public class GameManager : MonoBehaviour {
             SelectCell(out xy, ref placed);
             Entity enemy = new Chicken("chicken");
             lst_entity.Add(enemy);
-            field[xy.x, xy.y].entity = enemy;
+            PlaceEntity(xy, enemy);
         }
 
         //Spawn Player
         SelectCell(out xy, ref placed);
         Player _player = new Player("Player");
         player = _player;
-        field[xy.x, xy.y].entity = _player;
+        PlaceEntity(xy, _player);
 
-        //Spanw Items
+        //Spawn Items
 
         Visualizer.instance.VisualizeField(field);
     }
 
-    private void Update() {
-
+    public void PlaceEntity(Vector2Int pos, Entity entity) {
+        field[pos.x, pos.y].entity = entity;
     }
 
-    public void MovePlayer() {
+    public void PlaceItem(Vector2Int pos, Obj[] items) {
+        field[pos.x, pos.y].obj.AddRange(items);
+    }
+
+    public void Move_Player() {
         Move(player, player.range);
         FindNearBy();
+    }
+
+    public void Attack_Player() {
+        Attack(player, player.lst_nearEntity[0]);
+    }
+
+    private void Attack(Entity from, Entity to) {
+        from.Attack(to);
+        Visualizer.instance.VisualizeField(field);
     }
 
     private void Move(Entity target, int range = 1) {
@@ -71,6 +102,7 @@ public class GameManager : MonoBehaviour {
         Vector2Int playerPos = FindPos(player);
         player.lst_nearEntity.Clear();
         player.lst_nearObejct.Clear();
+        btn_attack.interactable = false;
         for (int x = playerPos.x - player.range; x <= playerPos.x + player.range; x++) {
             for (int y = playerPos.y - player.range; y <= playerPos.y + player.range; y++) {
                 Vector2Int newPos = new Vector2Int(x, y);
@@ -78,9 +110,10 @@ public class GameManager : MonoBehaviour {
                 if (newPos == playerPos) continue;
                 if (field[x, y].entity != null) {
                     player.lst_nearEntity.Add(field[x, y].entity);
+                    btn_attack.interactable = true;
                 }
                 if (field[x, y].obj != null) {
-                    player.lst_nearObejct.Add(field[x, y].obj);
+                    player.lst_nearObejct.AddRange(field[x, y].obj);
                 }
             }
         }
@@ -96,7 +129,7 @@ public class GameManager : MonoBehaviour {
         return !checkEntity || field[targetPos.x, targetPos.y].entity == null;
     }
 
-    private Vector2Int FindPos(Entity target) {
+    public Vector2Int FindPos(Entity target) {
         for (int x = 0; x < field.GetLength(0); x++) {
             for (int y = 0; y < field.GetLength(1); y++) {
                 if (field[x, y].entity == target) {
