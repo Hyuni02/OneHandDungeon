@@ -44,3 +44,19 @@ public class Entity {
         }
     }
 }
+
+public class Player : Entity { 
+    public Player(string _name) : base(_name) {
+    }
+    
+    public int range = 1;
+    public List<Entity> lst_nearEntity = new List<Entity>();
+    public List<Obj> lst_nearObejct = new List<Obj>();
+}
+
+public class Animal : Entity {
+    public Animal(string _name) : base(_name) {
+        inventory.Add(new Obj("Meat"));
+        inventory.Add(new Obj("Leather"));
+    }
+}

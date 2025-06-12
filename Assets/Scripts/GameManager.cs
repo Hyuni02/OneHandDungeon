@@ -10,11 +10,13 @@ public class GameManager : MonoBehaviour {
     [Header("Field")]
     public Vector2Int fieldSize = Vector2Int.zero;
     public int enemyCount;
+    public int itemCount;
     private Cell[,] field;
 
     [Header("Entity")]
     public Player player;
     public List<Entity> lst_entity = new List<Entity>();
+    public List<Obj> lst_obj = new List<Obj>();
 
     [Header("UI")]
     public Button btn_move;
@@ -37,6 +39,11 @@ public class GameManager : MonoBehaviour {
 
     private void CreateField() {
         field = new Cell[fieldSize.x, fieldSize.y];
+        for (int x = 0; x < fieldSize.x; x++) {
+            for (int y = 0; y < fieldSize.y; y++) {
+                field[x, y] = new Cell();
+            }
+        }
 
         List<Vector2Int> placed = new List<Vector2Int>();
         Vector2Int xy;
@@ -44,7 +51,7 @@ public class GameManager : MonoBehaviour {
         //Spawn Enemies
         for (int i = 0; i < enemyCount; i++) {
             SelectCell(out xy, ref placed);
-            Entity enemy = new Chicken("chicken");
+            Entity enemy = new Animal("chicken");
             lst_entity.Add(enemy);
             PlaceEntity(xy, enemy);
         }
@@ -56,6 +63,13 @@ public class GameManager : MonoBehaviour {
         PlaceEntity(xy, _player);
 
         //Spawn Items
+        for (int i = 0; i < itemCount; i++) {
+            SelectCell(out xy, ref placed); 
+            Obj item = new Obj("chicken");
+            lst_obj.Add(item);
+            Obj[] items = new[] { item };
+            PlaceItem(xy, items);
+        }
 
         Visualizer.instance.VisualizeField(field);
     }

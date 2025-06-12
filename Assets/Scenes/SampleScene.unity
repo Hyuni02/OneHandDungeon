@@ -1180,6 +1180,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fieldSize: {x: 5, y: 5}
   enemyCount: 3
+  itemCount: 1
   btn_move: {fileID: 1151888646}
   btn_attack: {fileID: 1952837766}
 --- !u!4 &2060542825

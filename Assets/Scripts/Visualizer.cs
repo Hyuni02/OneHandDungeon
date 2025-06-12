@@ -35,7 +35,7 @@ public class Visualizer : MonoBehaviour {
                     img.color = Color.green;
                 }
             }
-            else if (cell.obj != null) {
+            else if (cell.obj.Count != 0) {
                 img.color = Color.yellow;
             }
             else {
