@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour {
     public static GameManager instance;
@@ -21,6 +19,8 @@ public class GameManager : MonoBehaviour {
     [Header("UI")]
     public Button btn_move;
     public Button btn_attack;
+    public Button btn_pick;
+    public Button btn_search;
 
     private void Awake() {
         if (instance == null) {
@@ -32,7 +32,11 @@ public class GameManager : MonoBehaviour {
     }
     
     private void Start() {
-        btn_attack.interactable = false;
+        //init buttons
+        btn_move.gameObject.SetActive(true);
+        btn_search.gameObject.SetActive(true);
+        btn_attack.gameObject.SetActive(false);
+        btn_pick.gameObject.SetActive(false);
         
         CreateField();
     }
@@ -65,7 +69,7 @@ public class GameManager : MonoBehaviour {
         //Spawn Items
         for (int i = 0; i < itemCount; i++) {
             SelectCell(out xy, ref placed); 
-            Obj item = new Obj("chicken");
+            Obj item = new Obj("Meat");
             lst_obj.Add(item);
             Obj[] items = new[] { item };
             PlaceItem(xy, items);
@@ -84,11 +88,19 @@ public class GameManager : MonoBehaviour {
 
     public void Move_Player() {
         Move(player, player.range);
-        FindNearBy();
+        ShowNearBy(FindNearBy(player, true));
     }
 
     public void Attack_Player() {
         Attack(player, player.lst_nearEntity[0]);
+    }
+
+    public void Pick_Player() {
+        
+    }
+
+    public void Search_Player() {
+        ShowNearBy(FindNearBy(player, true));
     }
 
     private void Attack(Entity from, Entity to) {
@@ -112,27 +124,56 @@ public class GameManager : MonoBehaviour {
         Visualizer.instance.VisualizeField(field);
     }
 
-    private void FindNearBy() {
-        Vector2Int playerPos = FindPos(player);
-        player.lst_nearEntity.Clear();
-        player.lst_nearObejct.Clear();
-        btn_attack.interactable = false;
-        for (int x = playerPos.x - player.range; x <= playerPos.x + player.range; x++) {
-            for (int y = playerPos.y - player.range; y <= playerPos.y + player.range; y++) {
+    private void ShowNearBy(object target) {
+        switch (target) {
+            case null:
+                return;
+            case Entity entity:
+                print($"Entity : {entity.name}");
+                break;
+            case Obj obj:
+                print($"Obj : {obj.name}");
+                break;
+        }
+
+    }
+    
+    private object FindNearBy(Entity from, bool select = false) {
+        Vector2Int pos = FindPos(from);
+        from.lst_nearEntity.Clear();
+        from.lst_nearObejct.Clear();
+        // btn_attack.interactable = false;
+        for (int x = pos.x - from.range; x <= pos.x + from.range; x++) {
+            for (int y = pos.y - from.range; y <= pos.y + from.range; y++) {
                 Vector2Int newPos = new Vector2Int(x, y);
                 if (!IsValidPos(newPos)) continue;
-                if (newPos == playerPos) continue;
+                if (newPos == pos) continue;
                 if (field[x, y].entity != null) {
-                    player.lst_nearEntity.Add(field[x, y].entity);
-                    btn_attack.interactable = true;
+                    from.lst_nearEntity.Add(field[x, y].entity);
+                    // btn_attack.interactable = true;
                 }
                 if (field[x, y].obj != null) {
-                    player.lst_nearObejct.AddRange(field[x, y].obj);
+                    from.lst_nearObejct.AddRange(field[x, y].obj);
                 }
             }
         }
 
-        // print(player.lst_nearEntity.Count);
+        if (from.lst_nearEntity.Count == 0 && from.lst_nearObejct.Count == 0) return null;
+
+        if (select) {
+            int totalCount = from.lst_nearEntity.Count + from.lst_nearObejct.Count;
+            int index = Random.Range(0, totalCount);
+
+            if (index < from.lst_nearEntity.Count) {
+                return from.lst_nearEntity[index];
+            }
+            else {
+                return from.lst_nearObejct[index - from.lst_nearEntity.Count];
+            }
+        }
+        else {
+            return null;
+        }
     }
 
     private bool IsValidPos(Vector2Int targetPos, bool checkEntity = false) {

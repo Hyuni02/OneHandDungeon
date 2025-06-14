@@ -19,7 +19,12 @@ public class Entity {
     public int curHP { get; protected set; }
     public int dmg { get; protected set; }
     public List<Obj> inventory = new List<Obj>();
-
+    
+    public int range = 1;
+    public List<Entity> lst_nearEntity = new List<Entity>();
+    public List<Obj> lst_nearObejct = new List<Obj>();
+    public object target;
+    
     public void Attack(Entity target) {
         Debug.Log($"Attack : {name}");
         target.GetDmg(dmg);
@@ -48,10 +53,6 @@ public class Entity {
 public class Player : Entity { 
     public Player(string _name) : base(_name) {
     }
-    
-    public int range = 1;
-    public List<Entity> lst_nearEntity = new List<Entity>();
-    public List<Obj> lst_nearObejct = new List<Obj>();
 }
 
 public class Animal : Entity {
