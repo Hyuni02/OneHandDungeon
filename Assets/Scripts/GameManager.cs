@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour {
     public static GameManager instance;
@@ -10,17 +13,22 @@ public class GameManager : MonoBehaviour {
     public int enemyCount;
     public int itemCount;
     private Cell[,] field;
+    private bool knowExit = false;
 
     [Header("Entity")]
-    public Player player;
-    public List<Entity> lst_entity = new List<Entity>();
-    public List<Obj> lst_obj = new List<Obj>();
+    private Player player;
+    private List<Entity> lst_entity = new List<Entity>();
+    private List<Obj> lst_obj = new List<Obj>();
 
     [Header("UI")]
     public Button btn_move;
     public Button btn_attack;
     public Button btn_pick;
     public Button btn_search;
+    public Button btn_exit;
+
+    [Header("Entity")]
+    public TMP_Text target;
 
     private void Awake() {
         if (instance == null) {
@@ -35,8 +43,7 @@ public class GameManager : MonoBehaviour {
         //init buttons
         btn_move.gameObject.SetActive(true);
         btn_search.gameObject.SetActive(true);
-        btn_attack.gameObject.SetActive(false);
-        btn_pick.gameObject.SetActive(false);
+        SetUI();
         
         CreateField();
     }
@@ -51,6 +58,18 @@ public class GameManager : MonoBehaviour {
 
         List<Vector2Int> placed = new List<Vector2Int>();
         Vector2Int xy;
+        
+        //Spawn Player
+        xy = new Vector2Int(0, 0);
+        placed.Add(xy);
+        Player _player = new Player("Player");
+        player = _player;
+        PlaceEntity(xy, _player);
+        
+        //Spawn Exit
+        xy = new Vector2Int(fieldSize.x - 1, fieldSize.y - 1);
+        placed.Add(xy);
+        field[xy.x, xy.y].floor.type = FloorType.exit;
 
         //Spawn Enemies
         for (int i = 0; i < enemyCount; i++) {
@@ -59,12 +78,6 @@ public class GameManager : MonoBehaviour {
             lst_entity.Add(enemy);
             PlaceEntity(xy, enemy);
         }
-
-        //Spawn Player
-        SelectCell(out xy, ref placed);
-        Player _player = new Player("Player");
-        player = _player;
-        PlaceEntity(xy, _player);
 
         //Spawn Items
         for (int i = 0; i < itemCount; i++) {
@@ -105,6 +118,10 @@ public class GameManager : MonoBehaviour {
         ShowNearBy(player.target);
     }
 
+    public void Exit_Player() {
+        throw new NotImplementedException();
+    }
+
     private void Pick(Entity from, Obj item) {
         print($"{from.name} - Pick : {item.name}");
         from.inventory.Add(item);
@@ -120,35 +137,44 @@ public class GameManager : MonoBehaviour {
         Visualizer.instance.VisualizeField(field);
     }
 
-    private void Move(Entity target, int range = 1) {
+    private void Move(Entity _target, int range = 1) {
         Vector2Int newPos;
-        Vector2Int curPos = FindPos(target);
+        Vector2Int curPos = FindPos(_target);
 
         do {
             newPos = new Vector2Int(curPos.x + Random.Range(-range, range + 1), curPos.y + Random.Range(-range, range + 1));
         } while (!IsValidPos(newPos, true));
 
-        field[newPos.x, newPos.y].entity = target;
+        field[newPos.x, newPos.y].entity = _target;
         field[curPos.x, curPos.y].entity = null;
 
         Visualizer.instance.VisualizeField(field);
     }
 
-    public void ShowNearBy(object target) {
-        switch (target) {
+    private void SetUI(string type = null, string text = null) {
+        target.transform.parent.gameObject.SetActive(type != null);
+        btn_attack.gameObject.SetActive(type == "attack");
+        btn_pick.gameObject.SetActive(type == "pick");
+        btn_exit.gameObject.SetActive(type == "exit");
+        target.text = text;
+    }
+    
+    public void ShowNearBy(object _target) {
+        switch (_target) {
             case null:
-                btn_attack.gameObject.SetActive(false);
-                btn_pick.gameObject.SetActive(false);
+                SetUI();
                 return;
             case Entity entity:
                 print($"Entity : {entity.name}");
-                btn_attack.gameObject.SetActive(true);
-                btn_pick.gameObject.SetActive(false);
+                SetUI("attack", entity.name);
                 break;
             case Obj obj:
                 print($"Obj : {obj.name}");
-                btn_attack.gameObject.SetActive(false);
-                btn_pick.gameObject.SetActive(true);
+                SetUI("pick", obj.name);
+                break;
+            case Floor floor:
+                print($"Find Exit");
+                SetUI("exit", "Exit");
                 break;
         }
 
@@ -158,28 +184,40 @@ public class GameManager : MonoBehaviour {
         Vector2Int pos = FindPos(from);
         from.lst_nearEntity.Clear();
         from.lst_nearObejct.Clear();
+        Floor exit = null;
         for (int x = pos.x - from.range; x <= pos.x + from.range; x++) {
             for (int y = pos.y - from.range; y <= pos.y + from.range; y++) {
                 Vector2Int newPos = new Vector2Int(x, y);
                 if (!IsValidPos(newPos)) continue;
-                if (newPos == pos) continue;
-                if (field[x, y].entity != null) {
-                    from.lst_nearEntity.Add(field[x, y].entity);
+                if (newPos != pos) {
+                    if (field[x, y].entity != null) {
+                        from.lst_nearEntity.Add(field[x, y].entity);
+                    }
                 }
                 if (field[x, y].obj != null) {
                     from.lst_nearObejct.AddRange(field[x, y].obj);
                 }
+                if (field[x, y].floor.type == FloorType.exit) {
+                    if (!knowExit) {
+                        knowExit = true;
+                        return field[x, y].floor;
+                    }
+                    exit = field[x, y].floor;
+                }
             }
         }
 
-        if (from.lst_nearEntity.Count == 0 && from.lst_nearObejct.Count == 0) return null;
+        if (from.lst_nearEntity.Count == 0 && from.lst_nearObejct.Count == 0 && exit == null) return null;
 
         if (select) {
             int totalCount = from.lst_nearEntity.Count + from.lst_nearObejct.Count;
-            int index = Random.Range(0, totalCount);
+            int index = Random.Range(0, totalCount + 1);
 
             if (index < from.lst_nearEntity.Count) {
                 return from.lst_nearEntity[index];
+            }
+            else if (index == totalCount) {
+                return exit;
             }
             else {
                 return from.lst_nearObejct[index - from.lst_nearEntity.Count];
@@ -198,29 +236,29 @@ public class GameManager : MonoBehaviour {
         return !checkEntity || field[targetPos.x, targetPos.y].entity == null;
     }
 
-    public Vector2Int FindPos(Entity target) {
+    public Vector2Int FindPos(Entity _target) {
         for (int x = 0; x < field.GetLength(0); x++) {
             for (int y = 0; y < field.GetLength(1); y++) {
-                if (field[x, y].entity == target) {
+                if (field[x, y].entity == _target) {
                     return new Vector2Int(x, y);
                 }
             }
         }
 
-        Debug.LogError($"Can't find entity : {target.name}");
+        Debug.LogError($"Can't find entity : {_target.name}");
         return new Vector2Int(-1, -1);
     }
 
-    public Vector2Int FindPos(Obj target) {
+    private Vector2Int FindPos(Obj _target) {
         for (int x = 0; x < field.GetLength(0); x++) {
             for (int y = 0; y < field.GetLength(1); y++) {
-                if (field[x, y].obj.Contains(target)) {
+                if (field[x, y].obj.Contains(_target)) {
                     return new Vector2Int(x, y);
                 }
             }
         }
 
-        Debug.LogError($"Can't find obj : {target.name}");
+        Debug.LogError($"Can't find obj : {_target.name}");
         return new Vector2Int(-1, -1);
     }
 

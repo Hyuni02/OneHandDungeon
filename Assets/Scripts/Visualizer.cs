@@ -28,12 +28,15 @@ public class Visualizer : MonoBehaviour {
             GameObject obj = new GameObject("cell");
             Image img = obj.AddComponent<Image>();
             obj.transform.SetParent(ui_field);
-            
+
             if (cell.entity != null) {
                 img.color = Color.red;
                 if (cell.entity.name == "Player") {
                     img.color = Color.green;
                 }
+            }
+            else if (cell.floor.type == FloorType.exit) {
+                img.color = Color.blue;
             }
             else if (cell.obj.Count != 0) {
                 img.color = Color.yellow;
