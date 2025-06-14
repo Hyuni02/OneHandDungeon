@@ -1723,8 +1723,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fieldSize: {x: 5, y: 5}
-  enemyCount: 2
-  itemCount: 1
+  enemyCount: 1
+  itemCount: 0
   btn_move: {fileID: 1151888646}
   btn_attack: {fileID: 1952837766}
   btn_pick: {fileID: 1213707827}

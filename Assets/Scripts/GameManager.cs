@@ -88,22 +88,34 @@ public class GameManager : MonoBehaviour {
 
     public void Move_Player() {
         Move(player, player.range);
-        ShowNearBy(FindNearBy(player, true));
+        player.target = FindNearBy(player, true);
+        ShowNearBy(player.target);
     }
 
     public void Attack_Player() {
-        Attack(player, player.lst_nearEntity[0]);
+        Attack(player, (Entity)player.target);
     }
 
     public void Pick_Player() {
-        
+        Pick(player, (Obj)player.target);
     }
 
     public void Search_Player() {
-        ShowNearBy(FindNearBy(player, true));
+        player.target = FindNearBy(player, true);
+        ShowNearBy(player.target);
+    }
+
+    private void Pick(Entity from, Obj item) {
+        print($"{from.name} - Pick : {item.name}");
+        from.inventory.Add(item);
+        Vector2Int itemPos = FindPos(item);
+        field[itemPos.x, itemPos.y].obj.Remove(item);
+        ShowNearBy(FindNearBy(from));
+        Visualizer.instance.VisualizeField(field);
     }
 
     private void Attack(Entity from, Entity to) {
+        print($"{from.name} - Attack : {to.name}");
         from.Attack(to);
         Visualizer.instance.VisualizeField(field);
     }
@@ -116,33 +128,36 @@ public class GameManager : MonoBehaviour {
             newPos = new Vector2Int(curPos.x + Random.Range(-range, range + 1), curPos.y + Random.Range(-range, range + 1));
         } while (!IsValidPos(newPos, true));
 
-        // print($"from {curPos.x}, {curPos.y}\nto {newPos.x}, {newPos.y}");
-
         field[newPos.x, newPos.y].entity = target;
         field[curPos.x, curPos.y].entity = null;
 
         Visualizer.instance.VisualizeField(field);
     }
 
-    private void ShowNearBy(object target) {
+    public void ShowNearBy(object target) {
         switch (target) {
             case null:
+                btn_attack.gameObject.SetActive(false);
+                btn_pick.gameObject.SetActive(false);
                 return;
             case Entity entity:
                 print($"Entity : {entity.name}");
+                btn_attack.gameObject.SetActive(true);
+                btn_pick.gameObject.SetActive(false);
                 break;
             case Obj obj:
                 print($"Obj : {obj.name}");
+                btn_attack.gameObject.SetActive(false);
+                btn_pick.gameObject.SetActive(true);
                 break;
         }
 
     }
     
-    private object FindNearBy(Entity from, bool select = false) {
+    public object FindNearBy(Entity from, bool select = false) {
         Vector2Int pos = FindPos(from);
         from.lst_nearEntity.Clear();
         from.lst_nearObejct.Clear();
-        // btn_attack.interactable = false;
         for (int x = pos.x - from.range; x <= pos.x + from.range; x++) {
             for (int y = pos.y - from.range; y <= pos.y + from.range; y++) {
                 Vector2Int newPos = new Vector2Int(x, y);
@@ -150,7 +165,6 @@ public class GameManager : MonoBehaviour {
                 if (newPos == pos) continue;
                 if (field[x, y].entity != null) {
                     from.lst_nearEntity.Add(field[x, y].entity);
-                    // btn_attack.interactable = true;
                 }
                 if (field[x, y].obj != null) {
                     from.lst_nearObejct.AddRange(field[x, y].obj);
@@ -193,7 +207,20 @@ public class GameManager : MonoBehaviour {
             }
         }
 
-        Debug.LogError($"Can't find target : {target.name}");
+        Debug.LogError($"Can't find entity : {target.name}");
+        return new Vector2Int(-1, -1);
+    }
+
+    public Vector2Int FindPos(Obj target) {
+        for (int x = 0; x < field.GetLength(0); x++) {
+            for (int y = 0; y < field.GetLength(1); y++) {
+                if (field[x, y].obj.Contains(target)) {
+                    return new Vector2Int(x, y);
+                }
+            }
+        }
+
+        Debug.LogError($"Can't find obj : {target.name}");
         return new Vector2Int(-1, -1);
     }
 

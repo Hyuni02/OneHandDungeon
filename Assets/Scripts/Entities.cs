@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Entity {
+public abstract class Entity {
     protected Entity(string _name) {
         name = _name;
         
@@ -25,33 +25,27 @@ public class Entity {
     public List<Obj> lst_nearObejct = new List<Obj>();
     public object target;
     
-    public void Attack(Entity target) {
-        Debug.Log($"Attack : {name}");
-        target.GetDmg(dmg);
+    public virtual void Attack(Entity target) {
+        target.GetDmg(this, dmg);
     }
     
-    public void GetDmg(int _dmg) {
-        Debug.Log($"GetDmg : {name}");
+    public virtual void GetDmg(Entity from, int _dmg) {
         curHP -= _dmg;
         if (curHP <= 0) {
             curHP = 0;
-            Die();
+            Die(from);
         }
     }
 
-    public void Die() {
-        Debug.Log($"Die : {name}");
-        Vector2Int curPos = GameManager.instance.FindPos(this);
-        GameManager.instance.PlaceEntity(curPos, null);
-        //todo 자신의 위치에 드랍탭 떨구기
-        if (inventory.Count != 0) {
-            GameManager.instance.PlaceItem(curPos, inventory.ToArray());
-        }
-    }
+    public abstract void Die(Entity from);
 }
 
 public class Player : Entity { 
     public Player(string _name) : base(_name) {
+    }
+    
+    public override void Die(Entity from) {
+        throw new System.NotImplementedException();
     }
 }
 
@@ -59,5 +53,17 @@ public class Animal : Entity {
     public Animal(string _name) : base(_name) {
         inventory.Add(new Obj("Meat"));
         inventory.Add(new Obj("Leather"));
+    }
+    
+    public override void Die(Entity from) {
+        Debug.Log($"Die : {name}");
+        Vector2Int curPos = GameManager.instance.FindPos(this);
+        GameManager.instance.PlaceEntity(curPos, null);
+        //todo 자신의 위치에 드랍탭 떨구기
+        if (inventory.Count != 0) {
+            GameManager.instance.PlaceItem(curPos, inventory.ToArray());
+        }
+        from.target = GameManager.instance.FindNearBy(from, true);
+        GameManager.instance.ShowNearBy(from.target);
     }
 }
