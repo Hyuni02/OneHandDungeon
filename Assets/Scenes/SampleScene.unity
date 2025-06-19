@@ -2931,7 +2931,7 @@ MonoBehaviour:
   btn_attack: {fileID: 1952837766}
   btn_pick: {fileID: 1213707827}
   btn_search: {fileID: 1119595162}
-  btn_open: {fileID: 0}
+  btn_open: {fileID: 1712834146}
   btn_exit: {fileID: 442404796}
   btn_toexit: {fileID: 1692147320}
   target: {fileID: 1927016062}

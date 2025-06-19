@@ -1,3 +1,5 @@
+using System;
+using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -44,6 +46,24 @@ public class Visualizer : MonoBehaviour {
             else {
                 img.color = Color.gray;
             }
+        }
+    }
+
+    private void Update() {
+        if (Input.GetKeyDown(KeyCode.V)) {
+            Debug.Log($"Player : Player - ({GameManager.instance.FindPos(GameManager.instance.player)})");
+            foreach (var entity in GameManager.instance.lst_entity) {
+                Debug.Log($"Entity : {entity.name} - ({GameManager.instance.FindPos(entity)})");
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.I)) {
+            StringBuilder sb_i = new StringBuilder();
+            sb_i.AppendLine("Player Inventory");
+            foreach (var item in GameManager.instance.player.inventory) {
+                sb_i.Append(item.name + ", ");
+            }
+            Debug.Log(sb_i.ToString());
         }
     }
 }

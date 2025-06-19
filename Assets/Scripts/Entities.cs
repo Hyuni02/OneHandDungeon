@@ -25,8 +25,8 @@ public abstract class Entity {
     public List<Obj> lst_nearObejct = new List<Obj>();
     public object target;
     
-    public virtual void Attack(Entity target) {
-        target.GetDmg(this, dmg);
+    public virtual void Attack(Entity _target) {
+        _target.GetDmg(this, dmg);
     }
     
     public virtual void GetDmg(Entity from, int _dmg) {
@@ -57,14 +57,18 @@ public class Animal : Entity {
     
     public override void Die(Entity from) {
         Debug.Log($"Die : {name}");
+        //현재 위치에서 자신을 제거
         Vector2Int curPos = GameManager.instance.FindPos(this);
         GameManager.instance.PlaceEntity(curPos, null);
-        //todo 자신의 위치에 드랍템을 담는 시체 생성
+        GameManager.instance.lst_entity.Remove(this);
+        //드랍탬을 담는 시체 생성
         Body body = new Body(name + " body", inventory);
         if (inventory.Count != 0) {
             GameManager.instance.PlaceItem(curPos, body);
+            GameManager.instance.lst_obj.Add(body);
         }
         from.target = GameManager.instance.FindNearBy(from, true);
+        //공격자(플레이어)에게 시체를 보여줌
         GameManager.instance.ShowNearBy(from.target);
     }
 }

@@ -17,9 +17,9 @@ public class GameManager : MonoBehaviour {
     private bool knowExit = false;
 
     [Header("Entity")]
-    private Player player;
-    private List<Entity> lst_entity = new List<Entity>();
-    private List<Obj> lst_obj = new List<Obj>();
+    public Player player;
+    public List<Entity> lst_entity = new List<Entity>();
+    public List<Obj> lst_obj = new List<Obj>();
 
     [Header("UI")]
     public Button btn_move;
@@ -30,7 +30,7 @@ public class GameManager : MonoBehaviour {
     public Button btn_exit;
     public Button btn_toexit;
 
-    [Header("Entity")]
+    [Header("UI")]
     public TMP_Text target;
 
     private void Awake() {
@@ -128,6 +128,7 @@ public class GameManager : MonoBehaviour {
         foreach (var item in body.content) {
             print(item.name);
         }
+        //todo 시체 열기 구현
     }
 
     public void Attack_Player() {
@@ -248,25 +249,25 @@ public class GameManager : MonoBehaviour {
                     from.lst_nearObejct.AddRange(field[x, y].obj);
                 }
                 if (field[x, y].floor.type == FloorType.exit) {
+                    //탈출구에 처음 접근하면 무조건 발견
                     if (!knowExit) {
-                        // knowExit = true;
                         return field[x, y].floor;
                     }
                     exit = field[x, y].floor;
                 }
             }
         }
-
+        
         if (from.lst_nearEntity.Count == 0 && from.lst_nearObejct.Count == 0 && exit == null) return null;
 
         if (select) {
-            int totalCount = from.lst_nearEntity.Count + from.lst_nearObejct.Count;
-            int index = Random.Range(0, totalCount + 1);
+            int totalCount = from.lst_nearEntity.Count + from.lst_nearObejct.Count + (exit != null ? 1 : 0);
+            int index = Random.Range(0, totalCount);
 
             if (index < from.lst_nearEntity.Count) {
                 return from.lst_nearEntity[index];
             }
-            else if (index == totalCount) {
+            else if (index == totalCount && exit != null) {
                 return exit;
             }
             else {
