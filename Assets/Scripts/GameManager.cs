@@ -7,8 +7,9 @@ using Random = UnityEngine.Random;
 
 public class GameManager : MonoBehaviour {
     public static GameManager instance;
-    
+
     [Header("Field")]
+    public int depth = 1;
     public Vector2Int fieldSize = Vector2Int.zero;
     public int enemyCount;
     public int itemCount;
@@ -26,6 +27,7 @@ public class GameManager : MonoBehaviour {
     public Button btn_pick;
     public Button btn_search;
     public Button btn_exit;
+    public Button btn_toexit;
 
     [Header("Entity")]
     public TMP_Text target;
@@ -40,9 +42,16 @@ public class GameManager : MonoBehaviour {
     }
     
     private void Start() {
+        init(1);
+    }
+
+    private void init(int _depth) {
+        print(_depth + "층 진입");
         //init buttons
         btn_move.gameObject.SetActive(true);
         btn_search.gameObject.SetActive(true);
+        knowExit = false;
+        
         SetUI();
         
         CreateField();
@@ -59,14 +68,19 @@ public class GameManager : MonoBehaviour {
         List<Vector2Int> placed = new List<Vector2Int>();
         Vector2Int xy;
         
-        //Spawn Player
+        //Spawn Player - (0,0)
         xy = new Vector2Int(0, 0);
         placed.Add(xy);
-        Player _player = new Player("Player");
-        player = _player;
-        PlaceEntity(xy, _player);
+        if (player == null) {
+            Player _player = new Player("Player");
+            player = _player;
+            PlaceEntity(xy, _player);
+        }
+        else {
+            PlaceEntity(xy, player);
+        }
         
-        //Spawn Exit
+        //Spawn Exit - (n,n)
         xy = new Vector2Int(fieldSize.x - 1, fieldSize.y - 1);
         placed.Add(xy);
         field[xy.x, xy.y].floor.type = FloorType.exit;
@@ -119,7 +133,25 @@ public class GameManager : MonoBehaviour {
     }
 
     public void Exit_Player() {
-        throw new NotImplementedException();
+        depth++;
+        init(depth);
+    }
+
+    public void ToExit_Player() {
+        Vector2Int newPos;
+        Vector2Int curPos = FindPos(player);
+
+        do {
+            newPos = new Vector2Int(fieldSize.x - 1 + Random.Range(-1, 2), fieldSize.y - 1 + Random.Range(-1, 2));
+        } while (!IsValidPos(newPos, true));
+        
+        field[newPos.x, newPos.y].entity = player;
+        field[curPos.x, curPos.y].entity = null;
+        
+        Visualizer.instance.VisualizeField(field);
+        
+        player.target = FindNearBy(player, true);
+        ShowNearBy(player.target);
     }
 
     private void Pick(Entity from, Obj item) {
@@ -156,6 +188,7 @@ public class GameManager : MonoBehaviour {
         btn_attack.gameObject.SetActive(type == "attack");
         btn_pick.gameObject.SetActive(type == "pick");
         btn_exit.gameObject.SetActive(type == "exit");
+        btn_toexit.gameObject.SetActive(knowExit);
         target.text = text;
     }
     
@@ -174,10 +207,11 @@ public class GameManager : MonoBehaviour {
                 break;
             case Floor floor:
                 print($"Find Exit");
+                knowExit = false;
                 SetUI("exit", "Exit");
+                knowExit = true;
                 break;
         }
-
     }
     
     public object FindNearBy(Entity from, bool select = false) {
@@ -199,7 +233,7 @@ public class GameManager : MonoBehaviour {
                 }
                 if (field[x, y].floor.type == FloorType.exit) {
                     if (!knowExit) {
-                        knowExit = true;
+                        // knowExit = true;
                         return field[x, y].floor;
                     }
                     exit = field[x, y].floor;
