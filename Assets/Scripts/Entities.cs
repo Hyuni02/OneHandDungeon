@@ -59,9 +59,10 @@ public class Animal : Entity {
         Debug.Log($"Die : {name}");
         Vector2Int curPos = GameManager.instance.FindPos(this);
         GameManager.instance.PlaceEntity(curPos, null);
-        //todo 자신의 위치에 드랍탭 떨구기
+        //todo 자신의 위치에 드랍템을 담는 시체 생성
+        Body body = new Body(name + " body", inventory);
         if (inventory.Count != 0) {
-            GameManager.instance.PlaceItem(curPos, inventory.ToArray());
+            GameManager.instance.PlaceItem(curPos, body);
         }
         from.target = GameManager.instance.FindNearBy(from, true);
         GameManager.instance.ShowNearBy(from.target);

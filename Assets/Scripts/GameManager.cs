@@ -10,7 +10,7 @@ public class GameManager : MonoBehaviour {
 
     [Header("Field")]
     public int depth = 1;
-    public Vector2Int fieldSize = Vector2Int.zero;
+    public int fieldSize = 0;
     public int enemyCount;
     public int itemCount;
     private Cell[,] field;
@@ -26,6 +26,7 @@ public class GameManager : MonoBehaviour {
     public Button btn_attack;
     public Button btn_pick;
     public Button btn_search;
+    public Button btn_open;
     public Button btn_exit;
     public Button btn_toexit;
 
@@ -58,9 +59,9 @@ public class GameManager : MonoBehaviour {
     }
 
     private void CreateField() {
-        field = new Cell[fieldSize.x, fieldSize.y];
-        for (int x = 0; x < fieldSize.x; x++) {
-            for (int y = 0; y < fieldSize.y; y++) {
+        field = new Cell[fieldSize, fieldSize];
+        for (int x = 0; x < fieldSize; x++) {
+            for (int y = 0; y < fieldSize; y++) {
                 field[x, y] = new Cell();
             }
         }
@@ -81,7 +82,7 @@ public class GameManager : MonoBehaviour {
         }
         
         //Spawn Exit - (n,n)
-        xy = new Vector2Int(fieldSize.x - 1, fieldSize.y - 1);
+        xy = new Vector2Int(fieldSize - 1, fieldSize - 1);
         placed.Add(xy);
         field[xy.x, xy.y].floor.type = FloorType.exit;
 
@@ -98,8 +99,7 @@ public class GameManager : MonoBehaviour {
             SelectCell(out xy, ref placed); 
             Obj item = new Obj("Meat");
             lst_obj.Add(item);
-            Obj[] items = new[] { item };
-            PlaceItem(xy, items);
+            PlaceItem(xy, item);
         }
 
         Visualizer.instance.VisualizeField(field);
@@ -113,10 +113,21 @@ public class GameManager : MonoBehaviour {
         field[pos.x, pos.y].obj.AddRange(items);
     }
 
+    public void PlaceItem(Vector2Int pos, Obj item) {
+        field[pos.x, pos.y].obj.Add(item);
+    }
+
     public void Move_Player() {
         Move(player, player.range);
         player.target = FindNearBy(player, true);
         ShowNearBy(player.target);
+    }
+
+    public void Open_Player() {
+        Body body = (Body)player.target;
+        foreach (var item in body.content) {
+            print(item.name);
+        }
     }
 
     public void Attack_Player() {
@@ -142,7 +153,7 @@ public class GameManager : MonoBehaviour {
         Vector2Int curPos = FindPos(player);
 
         do {
-            newPos = new Vector2Int(fieldSize.x - 1 + Random.Range(-1, 2), fieldSize.y - 1 + Random.Range(-1, 2));
+            newPos = new Vector2Int(fieldSize - 1 + Random.Range(-1, 2), fieldSize - 1 + Random.Range(-1, 2));
         } while (!IsValidPos(newPos, true));
         
         field[newPos.x, newPos.y].entity = player;
@@ -188,6 +199,7 @@ public class GameManager : MonoBehaviour {
         btn_attack.gameObject.SetActive(type == "attack");
         btn_pick.gameObject.SetActive(type == "pick");
         btn_exit.gameObject.SetActive(type == "exit");
+        btn_open.gameObject.SetActive(type == "open");
         btn_toexit.gameObject.SetActive(knowExit);
         target.text = text;
     }
@@ -200,6 +212,10 @@ public class GameManager : MonoBehaviour {
             case Entity entity:
                 print($"Entity : {entity.name}");
                 SetUI("attack", entity.name);
+                break;
+            case Body body:
+                print($"Body : {body.name}");
+                SetUI("open", body.name);
                 break;
             case Obj obj:
                 print($"Obj : {obj.name}");
@@ -303,7 +319,7 @@ public class GameManager : MonoBehaviour {
     /// <param name="placed">중복 좌표를 저장하는 리스트</param>
     private void SelectCell(out Vector2Int xy, ref List<Vector2Int> placed) {
         while (true) {
-            xy = new Vector2Int(Random.Range(0, fieldSize.x - 1), Random.Range(0, fieldSize.y - 1));
+            xy = new Vector2Int(Random.Range(0, fieldSize - 1), Random.Range(0, fieldSize - 1));
             if (placed.Contains(xy)) continue;
             placed.Add(xy);
             break;
