@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net.NetworkInformation;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -29,9 +30,14 @@ public class GameManager : MonoBehaviour {
     public Button btn_open;
     public Button btn_exit;
     public Button btn_toexit;
+    public GameObject pnl_container;
+    public Transform content_container;
 
     [Header("UI")]
     public TMP_Text target;
+
+    [Header("Prefab")]
+    public GameObject prefab_btn_item;
 
     private void Awake() {
         if (instance == null) {
@@ -41,7 +47,7 @@ public class GameManager : MonoBehaviour {
             Destroy(gameObject);
         }
     }
-    
+
     private void Start() {
         init(1);
     }
@@ -52,9 +58,9 @@ public class GameManager : MonoBehaviour {
         btn_move.gameObject.SetActive(true);
         btn_search.gameObject.SetActive(true);
         knowExit = false;
-        
+
         SetUI();
-        
+
         CreateField();
     }
 
@@ -68,7 +74,7 @@ public class GameManager : MonoBehaviour {
 
         List<Vector2Int> placed = new List<Vector2Int>();
         Vector2Int xy;
-        
+
         //Spawn Player - (0,0)
         xy = new Vector2Int(0, 0);
         placed.Add(xy);
@@ -80,7 +86,7 @@ public class GameManager : MonoBehaviour {
         else {
             PlaceEntity(xy, player);
         }
-        
+
         //Spawn Exit - (n,n)
         xy = new Vector2Int(fieldSize - 1, fieldSize - 1);
         placed.Add(xy);
@@ -96,7 +102,7 @@ public class GameManager : MonoBehaviour {
 
         //Spawn Items
         for (int i = 0; i < itemCount; i++) {
-            SelectCell(out xy, ref placed); 
+            SelectCell(out xy, ref placed);
             Obj item = new Obj("Meat");
             lst_obj.Add(item);
             PlaceItem(xy, item);
@@ -118,6 +124,10 @@ public class GameManager : MonoBehaviour {
     }
 
     public void Move_Player() {
+        if (pnl_container.activeSelf) {
+            Close_Player();
+        }
+        
         Move(player, player.range);
         player.target = FindNearBy(player, true);
         ShowNearBy(player.target);
@@ -125,10 +135,20 @@ public class GameManager : MonoBehaviour {
 
     public void Open_Player() {
         Body body = (Body)player.target;
+        
+        pnl_container.SetActive(true);
+        btn_open.interactable = false;
+        
         foreach (var item in body.content) {
             print(item.name);
+            GameObject obj = Instantiate(prefab_btn_item, content_container);
+            obj.GetComponent<btn_item>().init(item);
         }
-        //todo 시체 열기 구현
+    }
+
+    public void Close_Player() {
+        pnl_container.SetActive(false);
+        btn_open.interactable = true;
     }
 
     public void Attack_Player() {
@@ -140,6 +160,10 @@ public class GameManager : MonoBehaviour {
     }
 
     public void Search_Player() {
+        if (pnl_container.activeSelf) {
+            Close_Player();
+        }
+        
         player.target = FindNearBy(player, true);
         ShowNearBy(player.target);
     }
@@ -150,18 +174,22 @@ public class GameManager : MonoBehaviour {
     }
 
     public void ToExit_Player() {
+        if (pnl_container.activeSelf) {
+            Close_Player();
+        }
+        
         Vector2Int newPos;
         Vector2Int curPos = FindPos(player);
 
         do {
             newPos = new Vector2Int(fieldSize - 1 + Random.Range(-1, 2), fieldSize - 1 + Random.Range(-1, 2));
         } while (!IsValidPos(newPos, true));
-        
+
         field[newPos.x, newPos.y].entity = player;
         field[curPos.x, curPos.y].entity = null;
-        
+
         Visualizer.instance.VisualizeField(field);
-        
+
         player.target = FindNearBy(player, true);
         ShowNearBy(player.target);
     }
@@ -202,9 +230,10 @@ public class GameManager : MonoBehaviour {
         btn_exit.gameObject.SetActive(type == "exit");
         btn_open.gameObject.SetActive(type == "open");
         btn_toexit.gameObject.SetActive(knowExit);
+        pnl_container.SetActive(type == "container");
         target.text = text;
     }
-    
+
     public void ShowNearBy(object _target) {
         switch (_target) {
             case null:
@@ -230,7 +259,7 @@ public class GameManager : MonoBehaviour {
                 break;
         }
     }
-    
+
     public object FindNearBy(Entity from, bool select = false) {
         Vector2Int pos = FindPos(from);
         from.lst_nearEntity.Clear();
@@ -257,7 +286,7 @@ public class GameManager : MonoBehaviour {
                 }
             }
         }
-        
+
         if (from.lst_nearEntity.Count == 0 && from.lst_nearObejct.Count == 0 && exit == null) return null;
 
         if (select) {
