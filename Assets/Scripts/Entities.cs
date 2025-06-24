@@ -5,13 +5,14 @@ public abstract class Entity {
     protected Entity(string _name) {
         name = _name;
         
-        //todo 이름으로 엔티티 스텟 불러오기
-        //todo 이름으로 드랍탬 불러오기
+        //이름으로 엔티티 스텟 불러오기
+        Dictionary<string, object> data = DataLoader.GetData(name, "entity");
+        maxHP = (int)data["hp"];
+        curHP = maxHP;
+        dmg = (int)data["damage"];
         
-        //임시
-        maxHP = 100;
-        curHP = 100;
-        dmg = 50;
+        //todo 인벤토리 불러오기
+        
     }
     
     public string name { get; protected set; }
@@ -40,6 +41,8 @@ public abstract class Entity {
     public abstract void Die(Entity from);
 }
 
+#region Player
+
 public class Player : Entity { 
     public Player(string _name) : base(_name) {
     }
@@ -48,12 +51,16 @@ public class Player : Entity {
         throw new System.NotImplementedException();
     }
 
-    public bool GetItem(Obj obj) {
+    public virtual bool GetItem(Obj obj) {
         inventory.Add(obj);
         Debug.Log($"Get Item : {obj.name}");
         return true;
     }
 }
+
+#endregion
+
+#region Enemy
 
 public class Animal : Entity {
     public Animal(string _name) : base(_name) {
@@ -73,8 +80,10 @@ public class Animal : Entity {
             GameManager.instance.PlaceItem(curPos, body);
             GameManager.instance.lst_obj.Add(body);
         }
-        from.target = GameManager.instance.FindNearBy(from, true);
+        from.target = body;
         //공격자(플레이어)에게 시체를 보여줌
         GameManager.instance.ShowNearBy(from.target);
     }
 }
+
+#endregion

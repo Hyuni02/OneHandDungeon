@@ -46,6 +46,8 @@ public class GameManager : MonoBehaviour {
         else {
             Destroy(gameObject);
         }
+        
+        
     }
 
     private void Start() {
@@ -65,6 +67,7 @@ public class GameManager : MonoBehaviour {
     }
 
     private void CreateField() {
+        //필드 생성
         field = new Cell[fieldSize, fieldSize];
         for (int x = 0; x < fieldSize; x++) {
             for (int y = 0; y < fieldSize; y++) {

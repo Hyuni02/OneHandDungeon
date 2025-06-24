@@ -1,0 +1,3 @@
+﻿name,hp,damage,range,inventory
+Player,100,50,1,
+chicken,44,50,0,"""Meat:1, Leather:0.5"""
