@@ -47,6 +47,12 @@ public class Player : Entity {
     public override void Die(Entity from) {
         throw new System.NotImplementedException();
     }
+
+    public bool GetItem(Obj obj) {
+        inventory.Add(obj);
+        Debug.Log($"Get Item : {obj.name}");
+        return true;
+    }
 }
 
 public class Animal : Entity {

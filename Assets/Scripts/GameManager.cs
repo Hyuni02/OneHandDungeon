@@ -142,11 +142,12 @@ public class GameManager : MonoBehaviour {
         foreach (var item in body.content) {
             print(item.name);
             GameObject obj = Instantiate(prefab_btn_item, content_container);
-            obj.GetComponent<btn_item>().init(item);
+            obj.GetComponent<btn_item>().init(body, item);
         }
     }
 
     public void Close_Player() {
+        ClearChild(content_container);
         pnl_container.SetActive(false);
         btn_open.interactable = true;
     }
@@ -296,11 +297,13 @@ public class GameManager : MonoBehaviour {
             if (index < from.lst_nearEntity.Count) {
                 return from.lst_nearEntity[index];
             }
-            else if (index == totalCount && exit != null) {
+            else if (exit != null && index == totalCount - 1) {  // exit은 마지막 인덱스
                 return exit;
             }
             else {
-                return from.lst_nearObejct[index - from.lst_nearEntity.Count];
+                int objectIndex = index - from.lst_nearEntity.Count;
+                if (exit != null) objectIndex--;  // exit이 있으면 object 인덱스를 1 감소
+                return from.lst_nearObejct[objectIndex];
             }
         }
         else {
@@ -353,6 +356,12 @@ public class GameManager : MonoBehaviour {
             if (placed.Contains(xy)) continue;
             placed.Add(xy);
             break;
+        }
+    }
+
+    private void ClearChild(Transform parent){
+        for(int i = parent.childCount - 1; i>=0; i--){
+            DestroyImmediate(parent.GetChild(i).gameObject);
         }
     }
 }
