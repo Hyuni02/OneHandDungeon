@@ -10,9 +10,17 @@ public abstract class Entity {
         maxHP = (int)data["hp"];
         curHP = maxHP;
         dmg = (int)data["damage"];
-        
-        //todo 인벤토리 불러오기
-        
+      
+        string[] itemStrings = ((string)data["inventory"]).Split(',');
+        if (itemStrings[0] == "") return;
+        foreach (var itemString in itemStrings) {
+            string[] itemData = itemString.Split(':'); // 0:item name, 1:item probability
+            if (Random.Range(0, 100) < float.Parse(itemData[1]) * 100) {
+                Obj obj = new Obj(itemData[0]);
+                inventory.Add(obj);
+                Debug.Log($"{obj.name}");
+            }
+        }
     }
     
     public string name { get; protected set; }
@@ -64,8 +72,6 @@ public class Player : Entity {
 
 public class Animal : Entity {
     public Animal(string _name) : base(_name) {
-        inventory.Add(new Obj("Meat"));
-        inventory.Add(new Obj("Leather"));
     }
     
     public override void Die(Entity from) {

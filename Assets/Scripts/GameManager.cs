@@ -143,7 +143,6 @@ public class GameManager : MonoBehaviour {
         btn_open.interactable = false;
         
         foreach (var item in body.content) {
-            print(item.name);
             GameObject obj = Instantiate(prefab_btn_item, content_container);
             obj.GetComponent<btn_item>().init(body, item);
         }
