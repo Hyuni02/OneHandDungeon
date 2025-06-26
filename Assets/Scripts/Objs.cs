@@ -1,16 +1,33 @@
 using System.Collections.Generic;
-public class Obj {
+using UnityEngine;
+public abstract class Obj {
     public string name;
-
-    public Obj(string _name) {
+    
+    protected Obj(string _name) {
         name = _name;
     }
 }
 
-public class Body : Obj {
-    public List<Obj> content;
+public class Item : Obj {
+    public readonly Dictionary<string, int> property = new Dictionary<string, int>();
+    public readonly string description;
+    
+    public Item(string _name) : base(_name) {
+        Dictionary<string, object> data = DataLoader.GetData(_name, "obj");
+        description = data["description"].ToString();
+        string[] propertyString = data["property"].ToString().Split(',');
+        if (propertyString[0] == "") return;
+        foreach (string prop in propertyString) {
+            string[] p = prop.Split(':');
+            property.Add(p[0], int.Parse(p[1]));
+        }
+    }
+}
 
-    public Body(string _name, List<Obj> items) : base(_name) {
+public class Body : Obj {
+    public List<Item> content;
+
+    public Body(string _name, List<Item> items) : base(_name) {
         content = items;
     }
 }

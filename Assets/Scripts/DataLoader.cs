@@ -10,7 +10,7 @@ public class DataLoader : MonoBehaviour {
 
     private void Awake() {
         LoadEntityData();
-        // LoadObjData();
+        LoadObjData();
     }
     
     private void LoadEntityData() {

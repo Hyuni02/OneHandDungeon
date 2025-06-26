@@ -16,9 +16,9 @@ public abstract class Entity {
         foreach (var itemString in itemStrings) {
             string[] itemData = itemString.Split(':'); // 0:item name, 1:item probability
             if (Random.Range(0, 100) < float.Parse(itemData[1]) * 100) {
-                Obj obj = new Obj(itemData[0]);
-                inventory.Add(obj);
-                Debug.Log($"{obj.name}");
+                Item item = new Item(itemData[0]);
+                inventory.Add(item);
+                Debug.Log($"{item.name}");
             }
         }
     }
@@ -27,7 +27,7 @@ public abstract class Entity {
     public int maxHP { get; protected set; }
     public int curHP { get; protected set; }
     public int dmg { get; protected set; }
-    public List<Obj> inventory = new List<Obj>();
+    public List<Item> inventory = new List<Item>();
     
     public int range = 1;
     public List<Entity> lst_nearEntity = new List<Entity>();
@@ -59,9 +59,9 @@ public class Player : Entity {
         throw new System.NotImplementedException();
     }
 
-    public virtual bool GetItem(Obj obj) {
-        inventory.Add(obj);
-        Debug.Log($"Get Item : {obj.name}");
+    public virtual bool GetItem(Item item) {
+        inventory.Add(item);
+        Debug.Log($"Get Item : {item.name}");
         return true;
     }
 }
@@ -83,7 +83,7 @@ public class Animal : Entity {
         //드랍탬을 담는 시체 생성
         Body body = new Body(name + " body", inventory);
         if (inventory.Count != 0) {
-            GameManager.instance.PlaceItem(curPos, body);
+            GameManager.instance.PlaceObj(curPos, body);
             GameManager.instance.lst_obj.Add(body);
         }
         from.target = body;

@@ -4,20 +4,20 @@ using UnityEngine.UI;
 
 public class btn_item : MonoBehaviour {
     public Body body;
-    public Obj obj;
+    public Item item;
 
-    public void init(Body _body, Obj _obj) {
-        obj = _obj;
+    public void init(Body _body, Item _item) {
+        item = _item;
         body = _body;
         
-        transform.GetChild(0).GetComponent<TMP_Text>().text = obj.name;
+        transform.GetChild(0).GetComponent<TMP_Text>().text = item.name;
         
         GetComponent<Button>().onClick.AddListener(click_Item);
     }
     
     private void click_Item() {
-        if (GameManager.instance.player.GetItem(obj)) {
-            body.content.Remove(obj);
+        if (GameManager.instance.player.GetItem(item)) {
+            body.content.Remove(item);
             gameObject.SetActive(false);
         }
     }   

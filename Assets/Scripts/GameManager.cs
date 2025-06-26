@@ -106,9 +106,9 @@ public class GameManager : MonoBehaviour {
         //Spawn Items
         for (int i = 0; i < itemCount; i++) {
             SelectCell(out xy, ref placed);
-            Obj item = new Obj("Meat");
+            Item item = new Item("Meat");
             lst_obj.Add(item);
-            PlaceItem(xy, item);
+            PlaceObj(xy, item);
         }
 
         Visualizer.instance.VisualizeField(field);
@@ -118,12 +118,12 @@ public class GameManager : MonoBehaviour {
         field[pos.x, pos.y].entity = entity;
     }
 
-    public void PlaceItem(Vector2Int pos, Obj[] items) {
-        field[pos.x, pos.y].obj.AddRange(items);
+    public void PlaceObj(Vector2Int pos, Obj[] objs) {
+        field[pos.x, pos.y].obj.AddRange(objs);
     }
 
-    public void PlaceItem(Vector2Int pos, Obj item) {
-        field[pos.x, pos.y].obj.Add(item);
+    public void PlaceObj(Vector2Int pos, Obj obj) {
+        field[pos.x, pos.y].obj.Add(obj);
     }
 
     public void Move_Player() {
@@ -159,7 +159,7 @@ public class GameManager : MonoBehaviour {
     }
 
     public void Pick_Player() {
-        Pick(player, (Obj)player.target);
+        Pick(player, (Item)player.target);
     }
 
     public void Search_Player() {
@@ -197,7 +197,7 @@ public class GameManager : MonoBehaviour {
         ShowNearBy(player.target);
     }
 
-    private void Pick(Entity from, Obj item) {
+    private void Pick(Entity from, Item item) {
         print($"{from.name} - Pick : {item.name}");
         from.inventory.Add(item);
         Vector2Int itemPos = FindPos(item);
