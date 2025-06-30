@@ -82,7 +82,7 @@ public class GameManager : MonoBehaviour {
         xy = new Vector2Int(0, 0);
         placed.Add(xy);
         if (player == null) {
-            Player _player = new Player("Player");
+            Nicky _player = new Nicky("Nicky");
             player = _player;
             PlaceEntity(xy, _player);
         }

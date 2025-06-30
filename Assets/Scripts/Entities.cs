@@ -46,6 +46,13 @@ public abstract class Entity {
         }
     }
 
+    public virtual void Heal(int heal) {
+        curHP += heal;
+        if (curHP > maxHP) {
+            curHP = maxHP;
+        }
+    }
+
     public abstract void Die(Entity from);
 }
 
@@ -63,6 +70,34 @@ public class Player : Entity {
         inventory.Add(item);
         Debug.Log($"Get Item : {item.name}");
         return true;
+    }
+}
+
+public class Nicky : Player {
+    public int rage { get; private set; }
+    public Nicky(string _name) : base(_name) { }
+
+    public override void Attack(Entity _target) {
+        if (rage >= 3) {
+            _target.GetDmg(this, dmg * 2);
+        }
+        else {
+            base.Attack(_target);
+        }
+    }
+
+    public override void GetDmg(Entity from, int _dmg) {
+        base.GetDmg(from, _dmg);
+        rage++;
+    }
+}
+
+public class Jackie : Player {
+    public Jackie(string _name) : base(_name) { }
+
+    public override void Attack(Entity _target) {
+        base.Attack(_target);
+        Heal((int)(dmg * 0.5f));
     }
 }
 

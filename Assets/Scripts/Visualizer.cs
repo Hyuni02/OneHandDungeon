@@ -33,7 +33,7 @@ public class Visualizer : MonoBehaviour {
 
             if (cell.entity != null) {
                 img.color = Color.red;
-                if (cell.entity.name == "Player") {
+                if (cell.entity is Player) {
                     img.color = Color.green;
                 }
             }
