@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Net.NetworkInformation;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -98,7 +97,7 @@ public class GameManager : MonoBehaviour {
         //Spawn Enemies
         for (int i = 0; i < enemyCount; i++) {
             SelectCell(out xy, ref placed);
-            Entity enemy = new Animal("chicken");
+            Entity enemy = new Animal("dog");
             lst_entity.Add(enemy);
             PlaceEntity(xy, enemy);
         }
@@ -126,9 +125,9 @@ public class GameManager : MonoBehaviour {
         field[pos.x, pos.y].obj.Add(obj);
     }
 
-    public void Move_Player() {
+    public void UI_Move() {
         if (pnl_container.activeSelf) {
-            Close_Player();
+            UI_Close();
         }
         
         Move(player, player.range);
@@ -136,7 +135,7 @@ public class GameManager : MonoBehaviour {
         ShowNearBy(player.target);
     }
 
-    public void Open_Player() {
+    public void UI_Open() {
         Body body = (Body)player.target;
         
         pnl_container.SetActive(true);
@@ -148,37 +147,37 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    public void Close_Player() {
+    public void UI_Close() {
         ClearChild(content_container);
         pnl_container.SetActive(false);
         btn_open.interactable = true;
     }
 
-    public void Attack_Player() {
+    public void UI_Attack() {
         Attack(player, (Entity)player.target);
     }
 
-    public void Pick_Player() {
+    public void UI_Pick() {
         Pick(player, (Item)player.target);
     }
 
-    public void Search_Player() {
+    public void UI_Search() {
         if (pnl_container.activeSelf) {
-            Close_Player();
+            UI_Close();
         }
         
         player.target = FindNearBy(player, true);
         ShowNearBy(player.target);
     }
 
-    public void Exit_Player() {
+    public void UI_Exit() {
         depth++;
         init(depth);
     }
 
-    public void ToExit_Player() {
+    public void UI_ToExit() {
         if (pnl_container.activeSelf) {
-            Close_Player();
+            UI_Close();
         }
         
         Vector2Int newPos;

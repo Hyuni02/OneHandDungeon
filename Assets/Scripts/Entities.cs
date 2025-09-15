@@ -18,7 +18,6 @@ public abstract class Entity {
             if (Random.Range(0, 100) < float.Parse(itemData[1]) * 100) {
                 Item item = new Item(itemData[0]);
                 inventory.Add(item);
-                Debug.Log($"{item.name}");
             }
         }
     }

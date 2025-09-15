@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028331, g: 0.2257133, b: 0.3069217, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -209,7 +209,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2060542824}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: Close_Player
+        m_MethodName: UI_Close
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -497,7 +497,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2060542824}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: Exit_Player
+        m_MethodName: UI_Exit
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1664,7 +1664,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2060542824}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: Search_Player
+        m_MethodName: UI_Search
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1798,7 +1798,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2060542824}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: Move_Player
+        m_MethodName: UI_Move
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2067,7 +2067,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2060542824}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: Pick_Player
+        m_MethodName: UI_Pick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2719,7 +2719,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2060542824}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: ToExit_Player
+        m_MethodName: UI_ToExit
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2853,7 +2853,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2060542824}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: Open_Player
+        m_MethodName: UI_Open
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3300,7 +3300,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2060542824}
         m_TargetAssemblyTypeName: GameManager, Assembly-CSharp
-        m_MethodName: Attack_Player
+        m_MethodName: UI_Attack
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
