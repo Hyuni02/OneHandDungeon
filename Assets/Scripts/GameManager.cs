@@ -8,6 +8,8 @@ using Random = UnityEngine.Random;
 public class GameManager : MonoBehaviour {
     public static GameManager instance;
 
+    public static bool meet = false; 
+    
     [Header("Field")]
     public int depth = 1;
     public int fieldSize = 0;
@@ -37,7 +39,7 @@ public class GameManager : MonoBehaviour {
 
     [Header("Prefab")]
     public GameObject prefab_btn_item;
-
+    
     private void Awake() {
         if (instance == null) {
             instance = this;
@@ -45,8 +47,6 @@ public class GameManager : MonoBehaviour {
         else {
             Destroy(gameObject);
         }
-        
-        
     }
 
     private void Start() {
@@ -206,7 +206,6 @@ public class GameManager : MonoBehaviour {
     }
 
     private void Attack(Entity from, Entity to) {
-        print($"{from.name} - Attack : {to.name}");
         from.Attack(to);
         Visualizer.instance.VisualizeField(field);
     }
@@ -237,20 +236,21 @@ public class GameManager : MonoBehaviour {
     }
 
     public void ShowNearBy(object _target) {
+        meet = _target == null;
         switch (_target) {
             case null:
                 SetUI();
                 return;
             case Entity entity:
-                print($"Entity : {entity.name}");
+                print($"Meet Entity : {entity.name}");
                 SetUI("attack", entity.name);
                 break;
             case Body body:
-                print($"Body : {body.name}");
+                print($"Meet Body : {body.name}");
                 SetUI("open", body.name);
                 break;
             case Obj obj:
-                print($"Obj : {obj.name}");
+                print($"Meet Obj : {obj.name}");
                 SetUI("pick", obj.name);
                 break;
             case Floor floor:

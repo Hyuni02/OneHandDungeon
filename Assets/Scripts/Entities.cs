@@ -34,10 +34,12 @@ public abstract class Entity {
     public object target;
     
     public virtual void Attack(Entity _target) {
+        Debug.Log($"{name} - Attack : {_target.name}");
         _target.GetDmg(this, dmg);
     }
     
     public virtual void GetDmg(Entity from, int _dmg) {
+        Debug.Log($"{name} - GetDmg : {_dmg}");
         curHP -= _dmg;
         if (curHP <= 0) {
             curHP = 0;
@@ -106,6 +108,12 @@ public class Jackie : Player {
 
 public class Animal : Entity {
     public Animal(string _name) : base(_name) {
+    }
+
+    public override void GetDmg(Entity from, int _dmg) {
+        base.GetDmg(from, _dmg);
+        if (curHP <= 0) return;
+        Attack(from);
     }
     
     public override void Die(Entity from) {
