@@ -184,7 +184,7 @@ public class GameManager : MonoBehaviour {
         depth++;
         init(depth);
     }
-
+    //탈출구 바로가기
     public void UI_ToExit() {
         if (pnl_container.activeSelf) {
             UI_CloseContainer();
@@ -193,10 +193,12 @@ public class GameManager : MonoBehaviour {
         Vector2Int newPos;
         Vector2Int curPos = FindPos(player);
 
+        //탈출구 주변 이동 가능한 셀 선택
         do {
             newPos = new Vector2Int(fieldSize - 1 + Random.Range(-1, 2), fieldSize - 1 + Random.Range(-1, 2));
         } while (!IsValidPos(newPos, true));
 
+        //플레이어 이동
         field[newPos.x, newPos.y].entity = player;
         field[curPos.x, curPos.y].entity = null;
 
@@ -255,21 +257,30 @@ public class GameManager : MonoBehaviour {
         from.Attack(to);
         Visualizer.instance.VisualizeField(field);
     }
-
+    /// <summary>
+    /// 대상을 범위만큼 이동
+    /// </summary>
+    /// <param name="_target">이동 할 대상</param>
+    /// <param name="range">이동 거리</param>
     private void Move(Entity _target, int range = 1) {
         Vector2Int newPos;
         Vector2Int curPos = FindPos(_target);
-
+        //현재위치 기준 범위 내 이동 가능한 셀 선택
         do {
             newPos = new Vector2Int(curPos.x + Random.Range(-range, range + 1), curPos.y + Random.Range(-range, range + 1));
         } while (!IsValidPos(newPos, true));
-
+        //대상 이동
         field[newPos.x, newPos.y].entity = _target;
         field[curPos.x, curPos.y].entity = null;
 
         Visualizer.instance.VisualizeField(field);
     }
 
+    /// <summary>
+    /// 유형에 따른 UI 세팅
+    /// </summary>
+    /// <param name="type">유형</param>
+    /// <param name="text">조우 대상 이름</param>
     private void SetUI(string type = null, string text = null) {
         target.transform.parent.gameObject.SetActive(type != null);
         btn_attack.gameObject.SetActive(type == "attack");
@@ -310,35 +321,49 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// 대상 주위를 범위 만큼 탐색
+    /// </summary>
+    /// <param name="from">탐색 원점(대상)</param>
+    /// <param name="select">발견 대상 반환 여부</param>
+    /// <returns>발견 대상</returns>
     public object FindNearBy(Entity from, bool select = false) {
-        Vector2Int pos = FindPos(from);
+        Vector2Int pos = FindPos(from); //from의 위치 획득
+        //탐색 대상 초기화
         from.lst_nearEntity.Clear();
         from.lst_nearObejct.Clear();
         Floor exit = null;
+        //필드 순회
         for (int x = pos.x - from.range; x <= pos.x + from.range; x++) {
             for (int y = pos.y - from.range; y <= pos.y + from.range; y++) {
                 Vector2Int newPos = new Vector2Int(x, y);
+                //필드를 벗어난 셀은 스킵
                 if (!IsValidPos(newPos)) continue;
+                //자신 제외
                 if (newPos != pos) {
+                    //엔티티 발견, 대상으로 추가
                     if (field[x, y].entity != null) {
                         from.lst_nearEntity.Add(field[x, y].entity);
                     }
                 }
+                //아이템 발견, 대상으로 추가
                 if (field[x, y].obj != null) {
                     from.lst_nearObejct.AddRange(field[x, y].obj);
                 }
+                //탈출구 발견
                 if (field[x, y].floor.type == FloorType.exit) {
                     //탈출구에 처음 접근하면 무조건 발견
                     if (!knowExit) {
                         return field[x, y].floor;
                     }
+                    //탈출구 위치 저장
                     exit = field[x, y].floor;
                 }
             }
         }
-
+        //주변에 아무것도 없음
         if (from.lst_nearEntity.Count == 0 && from.lst_nearObejct.Count == 0 && exit == null) return null;
-
+        //발견 대상 중 무작위 반환
         if (select) {
             int totalCount = from.lst_nearEntity.Count + from.lst_nearObejct.Count + (exit != null ? 1 : 0);
             int index = Random.Range(0, totalCount);
@@ -360,14 +385,27 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// 목표 지점이 유효한지 확인
+    /// </summary>
+    /// <param name="targetPos">목표 지점</param>
+    /// <param name="checkEntity">엔티티 체크 여부</param>
+    /// <returns>목표 지점 내부, 셀에 엔티티가 없을 때 true</returns>
     private bool IsValidPos(Vector2Int targetPos, bool checkEntity = false) {
+        //목표 지점이 필드 내부인지 확인
         if (targetPos.x < 0 || targetPos.x >= field.GetLength(1) ||
             targetPos.y < 0 || targetPos.y >= field.GetLength(0))
-            return false;
+            return false; //필드 외부임
 
+        //
         return !checkEntity || field[targetPos.x, targetPos.y].entity == null;
     }
 
+    /// <summary>
+    /// 필드 중 대상의 위치 찾기
+    /// </summary>
+    /// <param name="_target">위치를 찾을 엔티티</param>
+    /// <returns>대상의 위치</returns>
     public Vector2Int FindPos(Entity _target) {
         for (int x = 0; x < field.GetLength(0); x++) {
             for (int y = 0; y < field.GetLength(1); y++) {
@@ -380,7 +418,11 @@ public class GameManager : MonoBehaviour {
         Debug.LogError($"Can't find entity : {_target.name}");
         return new Vector2Int(-1, -1);
     }
-
+    /// <summary>
+    /// 필드 중 대상의 위치 찾기
+    /// </summary>
+    /// <param name="_target">위치를 찾을 아이템</param>
+    /// <returns>대상의 위치</returns>
     private Vector2Int FindPos(Obj _target) {
         for (int x = 0; x < field.GetLength(0); x++) {
             for (int y = 0; y < field.GetLength(1); y++) {
@@ -408,6 +450,10 @@ public class GameManager : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// 대상의 모든 자식 제거
+    /// </summary>
+    /// <param name="parent">자식을 제거할 대상</param>
     private void ClearChild(Transform parent){
         for(int i = parent.childCount - 1; i>=0; i--){
             DestroyImmediate(parent.GetChild(i).gameObject);
