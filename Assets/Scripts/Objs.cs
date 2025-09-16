@@ -12,10 +12,15 @@ public abstract class Obj {
 public class Item : Obj {
     public readonly Dictionary<string, int> property = new Dictionary<string, int>();
     public readonly string description;
+    public readonly bool useable = false;
     
     public Item(string _name) : base(_name) {
         Dictionary<string, object> data = DataLoader.GetData(_name, "obj");
+        
         description = data["description"].ToString();
+
+        useable = data["useable"].ToString() == "1";
+        
         string[] propertyString = data["property"].ToString().Split(',');
         if (propertyString[0] == "") return;
         foreach (string prop in propertyString) {
@@ -25,11 +30,11 @@ public class Item : Obj {
     }
 
     public void ShowProperty() {
-        throw new NotImplementedException("¾ÆÀÌÅÛ ¼Ó¼º Ç¥½Ã ¹Ì±¸Çö");
+        throw new NotImplementedException("ì•„ì´í…œ ì†ì„± í‘œì‹œ ë¯¸êµ¬í˜„");
     }
 
     public void Use(Entity caster) {
-        throw new NotImplementedException($"¾ÆÀÌÅÛ »ç¿ë ¹Ì±¸Çö - {name}");
+        throw new NotImplementedException($"ì•„ì´í…œ ì‚¬ìš© ë¯¸êµ¬í˜„ - {name}");
     }
 }
 

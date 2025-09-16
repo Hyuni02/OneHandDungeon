@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -8,10 +9,13 @@ public class btn_item : MonoBehaviour, IPointerClickHandler {
     public Body body;
     public Item item;
     private string defaultAction;
+    public HashSet<string> lst_action = new HashSet<string>() { "get", "use", "discard" };
+    public ContainerType containerType;
 
-    public void init(Body _body, Item _item, string _defaultAction = "get") {
+    public void init(Body _body, Item _item, ContainerType _containerType, string _defaultAction = "get") {
         item = _item;
         body = _body;
+        containerType = _containerType;
 
         transform.GetChild(0).GetComponent<TMP_Text>().text = item.name;
         Sprite loadedSprite = Resources.Load<Sprite>($"img/{item.name}");
@@ -23,17 +27,18 @@ public class btn_item : MonoBehaviour, IPointerClickHandler {
             Debug.LogError($"No Img : {item.name}");
         }
         defaultAction = _defaultAction;
-        GetComponent<Button>().onClick.AddListener(click_Item);
+        GetComponent<Button>().onClick.AddListener(() => click_Item());
     }
 
     public void OnPointerClick(PointerEventData eventData) {
         if(eventData.button == PointerEventData.InputButton.Right) {
-            GameManager.instance.OpenPopup();
+            GameManager.instance.OpenPopup(this);
         }
     }
 
-    private void click_Item() {
-        switch (defaultAction) {
+    public void click_Item(string action = null) {
+        action ??= defaultAction;
+        switch (action) {
             case "get":
                 if (GameManager.instance.player.GetItem(item)) {
                     body.content.Remove(item);

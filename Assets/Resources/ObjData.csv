@@ -1,4 +1,4 @@
-﻿name,displayname,description,property
-Meat,고기,고기이다,hp:5
-Leather,가죽,가죽이다,
-Feather,깃털,깃털이다,
+﻿name,displayname,description,useable,property
+Meat,고기,고기이다,1,hp:5
+Leather,가죽,가죽이다,0,
+Feather,깃털,깃털이다,0,

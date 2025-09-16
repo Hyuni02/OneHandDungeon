@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.18028331, g: 0.2257133, b: 0.3069217, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -4527,7 +4527,7 @@ MonoBehaviour:
   content_popup: {fileID: 2071929127}
   target: {fileID: 1927016062}
   prefab_btn_item: {fileID: 6950590353017759788, guid: 7f6cb98d23857bc489ce74176204aa76, type: 3}
-  prefab_popupaction: {fileID: 0}
+  prefab_popupaction: {fileID: 2783210364956548929, guid: 484fc9d4ca5e69047a37d915e574c111, type: 3}
 --- !u!4 &2060542825
 Transform:
   m_ObjectHideFlags: 0

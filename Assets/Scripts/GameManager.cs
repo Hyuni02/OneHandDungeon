@@ -8,8 +8,8 @@ using Random = UnityEngine.Random;
 public class GameManager : MonoBehaviour {
     public static GameManager instance;
 
-    public static bool meet = false; 
-    
+    public static bool meet = false;
+
     [Header("Field")]
     public int depth = 1;
     public int fieldSize = 0;
@@ -49,7 +49,7 @@ public class GameManager : MonoBehaviour {
     [Header("Prefab")]
     public GameObject prefab_btn_item;
     public GameObject prefab_popupaction;
-    
+
     private void Awake() {
         if (instance == null) {
             instance = this;
@@ -139,7 +139,7 @@ public class GameManager : MonoBehaviour {
         if (pnl_container.activeSelf) {
             UI_CloseContainer();
         }
-        
+
         Move(player, player.range);
         player.target = FindNearBy(player, true);
         ShowNearBy(player.target);
@@ -147,13 +147,13 @@ public class GameManager : MonoBehaviour {
 
     public void UI_OpenContainer() {
         Body body = (Body)player.target;
-        
+
         pnl_container.SetActive(true);
         btn_opencontainer.interactable = false;
-        
+
         foreach (var item in body.content) {
             GameObject obj = Instantiate(prefab_btn_item, content_container);
-            obj.GetComponent<btn_item>().init(body, item);
+            obj.GetComponent<btn_item>().init(body, item, ContainerType.body);
         }
     }
 
@@ -175,7 +175,7 @@ public class GameManager : MonoBehaviour {
         if (pnl_container.activeSelf) {
             UI_CloseContainer();
         }
-        
+
         player.target = FindNearBy(player, true);
         ShowNearBy(player.target);
     }
@@ -189,7 +189,7 @@ public class GameManager : MonoBehaviour {
         if (pnl_container.activeSelf) {
             UI_CloseContainer();
         }
-        
+
         Vector2Int newPos;
         Vector2Int curPos = FindPos(player);
 
@@ -214,10 +214,10 @@ public class GameManager : MonoBehaviour {
 
         foreach (var item in player.inventory) {
             GameObject obj = Instantiate(prefab_btn_item, content_inventory);
-            obj.GetComponent<btn_item>().init(new Body(player.name, player.inventory), item, "use");
+            obj.GetComponent<btn_item>().init(new Body(player.name, player.inventory), item, ContainerType.inventory, "use");
         }
     }
-    
+
     public void UI_CloseInventory() {
         ClearChild(content_inventory);
         pnl_inventory.SetActive(false);
@@ -229,7 +229,7 @@ public class GameManager : MonoBehaviour {
         pnl_popup.SetActive(false);
     }
 
-    public void OpenPopup() {
+    public void OpenPopup(btn_item button) {
         pnl_popup.SetActive(true);
         //컨텍스트 위치 조절
         RectTransform rect_context = content_popup.GetComponent<RectTransform>();
@@ -241,7 +241,24 @@ public class GameManager : MonoBehaviour {
             out pos
         );
         rect_context.anchoredPosition = pos;
-        throw new NotImplementedException("우클릭 메뉴 생성 미구현");
+        //컨텍스트 생성
+        foreach (var action in button.lst_action) {
+            switch (button.containerType) {
+                case ContainerType.body 
+                when action == "discard":
+                case ContainerType.inventory 
+                when action == "get":
+                    continue;
+            }
+            if(!button.item.useable && action == "use") continue;
+
+            GameObject obj = Instantiate(prefab_popupaction, content_popup);
+            Button btn = obj.GetComponent<Button>();
+            btn.onClick.AddListener(() => button.click_Item(action));
+            btn.onClick.AddListener(() => UI_ClosePopup());
+            TMP_Text text = obj.GetComponentInChildren<TMP_Text>();
+            text.text = action;
+        }
     }
 
     private void Pick(Entity from, Item item) {
@@ -371,12 +388,12 @@ public class GameManager : MonoBehaviour {
             if (index < from.lst_nearEntity.Count) {
                 return from.lst_nearEntity[index];
             }
-            else if (exit != null && index == totalCount - 1) {  // exit은 마지막 인덱스
+            else if (exit != null && index == totalCount - 1) { // exit은 마지막 인덱스
                 return exit;
             }
             else {
                 int objectIndex = index - from.lst_nearEntity.Count;
-                if (exit != null) objectIndex--;  // exit이 있으면 object 인덱스를 1 감소
+                if (exit != null) objectIndex--; // exit이 있으면 object 인덱스를 1 감소
                 return from.lst_nearObejct[objectIndex];
             }
         }
@@ -454,8 +471,8 @@ public class GameManager : MonoBehaviour {
     /// 대상의 모든 자식 제거
     /// </summary>
     /// <param name="parent">자식을 제거할 대상</param>
-    private void ClearChild(Transform parent){
-        for(int i = parent.childCount - 1; i>=0; i--){
+    private void ClearChild(Transform parent) {
+        for (int i = parent.childCount - 1; i >= 0; i--) {
             DestroyImmediate(parent.GetChild(i).gameObject);
         }
     }
