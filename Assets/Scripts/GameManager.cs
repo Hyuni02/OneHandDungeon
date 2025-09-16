@@ -91,7 +91,7 @@ public class GameManager : MonoBehaviour {
         xy = new Vector2Int(0, 0);
         placed.Add(xy);
         if (player == null) {
-            Nicky _player = new Nicky("Nicky");
+            AK12 _player = new AK12("AK12");
             player = _player;
             PlaceEntity(xy, _player);
         }
@@ -107,7 +107,7 @@ public class GameManager : MonoBehaviour {
         //Spawn Enemies
         for (int i = 0; i < enemyCount; i++) {
             SelectCell(out xy, ref placed);
-            Entity enemy = new Animal("dog");
+            Entity enemy = new Sangvis("dinergate");
             lst_entity.Add(enemy);
             PlaceEntity(xy, enemy);
         }

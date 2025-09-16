@@ -1,6 +1,6 @@
 ﻿name,displayname,hp,damage,range,inventory
 Player,플레이어,100,50,1,
-Jackie,재키,80,55,1,
-Nicky,니키,120,45,1,
-chicken,닭,44,50,0,"Meat:1,Feather:0.7"
-dog,들개,51,50,0,Leather:1
+AK12,마일리,80,55,1,
+AN94,안구사,120,45,1,
+dinergate,디너게이트,44,50,0,"Meat:1,Feather:0.7"
+prowler,프롤러,51,50,0,Leather:1

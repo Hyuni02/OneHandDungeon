@@ -75,9 +75,9 @@ public class Player : Entity {
     }
 }
 
-public class Nicky : Player {
+public class AK12 : Player {
     public int rage { get; private set; }
-    public Nicky(string _name) : base(_name) { }
+    public AK12(string _name) : base(_name) { }
 
     public override void Attack(Entity _target) {
         if (rage >= 3) {
@@ -94,8 +94,8 @@ public class Nicky : Player {
     }
 }
 
-public class Jackie : Player {
-    public Jackie(string _name) : base(_name) { }
+public class AN94 : Player {
+    public AN94(string _name) : base(_name) { }
 
     public override void Attack(Entity _target) {
         base.Attack(_target);
@@ -107,8 +107,8 @@ public class Jackie : Player {
 
 #region Enemy
 
-public class Animal : Entity {
-    public Animal(string _name) : base(_name) {
+public class Sangvis : Entity {
+    public Sangvis(string _name) : base(_name) {
     }
 
     public override void GetDmg(Entity from, int _dmg) {
