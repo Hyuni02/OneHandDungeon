@@ -23,22 +23,32 @@ public class GameManager : MonoBehaviour {
     public List<Entity> lst_entity = new List<Entity>();
     public List<Obj> lst_obj = new List<Obj>();
 
-    [Header("UI")]
+    [Header("UI Button")]
     public Button btn_move;
     public Button btn_attack;
     public Button btn_pick;
     public Button btn_search;
-    public Button btn_open;
+    public Button btn_opencontainer;
     public Button btn_exit;
     public Button btn_toexit;
+    public Button btn_inventory;
+
+    [Header("Container")]
+    public GameObject pnl_inventory;
     public GameObject pnl_container;
     public Transform content_container;
+    public Transform content_inventory;
+
+    [Header("Popup")]
+    public GameObject pnl_popup;
+    public Transform content_popup;
 
     [Header("UI")]
     public TMP_Text target;
 
     [Header("Prefab")]
     public GameObject prefab_btn_item;
+    public GameObject prefab_popupaction;
     
     private void Awake() {
         if (instance == null) {
@@ -127,7 +137,7 @@ public class GameManager : MonoBehaviour {
 
     public void UI_Move() {
         if (pnl_container.activeSelf) {
-            UI_Close();
+            UI_CloseContainer();
         }
         
         Move(player, player.range);
@@ -135,11 +145,11 @@ public class GameManager : MonoBehaviour {
         ShowNearBy(player.target);
     }
 
-    public void UI_Open() {
+    public void UI_OpenContainer() {
         Body body = (Body)player.target;
         
         pnl_container.SetActive(true);
-        btn_open.interactable = false;
+        btn_opencontainer.interactable = false;
         
         foreach (var item in body.content) {
             GameObject obj = Instantiate(prefab_btn_item, content_container);
@@ -147,10 +157,10 @@ public class GameManager : MonoBehaviour {
         }
     }
 
-    public void UI_Close() {
+    public void UI_CloseContainer() {
         ClearChild(content_container);
         pnl_container.SetActive(false);
-        btn_open.interactable = true;
+        btn_opencontainer.interactable = true;
     }
 
     public void UI_Attack() {
@@ -163,7 +173,7 @@ public class GameManager : MonoBehaviour {
 
     public void UI_Search() {
         if (pnl_container.activeSelf) {
-            UI_Close();
+            UI_CloseContainer();
         }
         
         player.target = FindNearBy(player, true);
@@ -177,7 +187,7 @@ public class GameManager : MonoBehaviour {
 
     public void UI_ToExit() {
         if (pnl_container.activeSelf) {
-            UI_Close();
+            UI_CloseContainer();
         }
         
         Vector2Int newPos;
@@ -194,6 +204,42 @@ public class GameManager : MonoBehaviour {
 
         player.target = FindNearBy(player, true);
         ShowNearBy(player.target);
+    }
+
+    public void UI_OpenInventory() {
+        pnl_inventory.SetActive(true);
+        btn_inventory.interactable = false;
+
+        foreach (var item in player.inventory) {
+            GameObject obj = Instantiate(prefab_btn_item, content_inventory);
+            obj.GetComponent<btn_item>().init(new Body(player.name, player.inventory), item, "use");
+        }
+    }
+    
+    public void UI_CloseInventory() {
+        ClearChild(content_inventory);
+        pnl_inventory.SetActive(false);
+        btn_inventory.interactable = true;
+    }
+
+    public void UI_ClosePopup() {
+        ClearChild(content_popup);
+        pnl_popup.SetActive(false);
+    }
+
+    public void OpenPopup() {
+        pnl_popup.SetActive(true);
+        //컨텍스트 위치 조절
+        RectTransform rect_context = content_popup.GetComponent<RectTransform>();
+        Vector2 pos;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            rect_context.parent as RectTransform, // 부모 기준
+            Input.mousePosition,
+            null, // 카메라 (Screen Space Overlay일 때는 null)
+            out pos
+        );
+        rect_context.anchoredPosition = pos;
+        throw new NotImplementedException("우클릭 메뉴 생성 미구현");
     }
 
     private void Pick(Entity from, Item item) {
@@ -229,9 +275,11 @@ public class GameManager : MonoBehaviour {
         btn_attack.gameObject.SetActive(type == "attack");
         btn_pick.gameObject.SetActive(type == "pick");
         btn_exit.gameObject.SetActive(type == "exit");
-        btn_open.gameObject.SetActive(type == "open");
+        btn_opencontainer.gameObject.SetActive(type == "open");
         btn_toexit.gameObject.SetActive(knowExit);
         pnl_container.SetActive(type == "container");
+        pnl_inventory.SetActive(type == "inventory");
+        pnl_popup.SetActive(type == "popup");
         target.text = text;
     }
 

@@ -68,6 +68,7 @@ public class Player : Entity {
     }
 
     public virtual bool GetItem(Item item) {
+        //todo 인벤토리 공간 확인
         inventory.Add(item);
         Debug.Log($"Get Item : {item.name}");
         return true;

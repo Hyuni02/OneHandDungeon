@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 public abstract class Obj {
@@ -21,6 +22,14 @@ public class Item : Obj {
             string[] p = prop.Split(':');
             property.Add(p[0], int.Parse(p[1]));
         }
+    }
+
+    public void ShowProperty() {
+        throw new NotImplementedException("아이템 속성 표시 미구현");
+    }
+
+    public void Use(Entity caster) {
+        throw new NotImplementedException($"아이템 사용 미구현 - {name}");
     }
 }
 
